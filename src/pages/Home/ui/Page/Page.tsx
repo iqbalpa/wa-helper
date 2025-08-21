@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useMemo, useState } from "react";
+import { POPULAR_COUNTRIES } from "@/app/countries";
 
 const LOCAL_STORAGE_KEY_PHONE = "wa-helper:last-phone";
 
@@ -16,6 +17,7 @@ function buildWaUrl(digits: string): string {
 const Home: FC = () => {
   const [phoneInput, setPhoneInput] = useState("");
   const [copied, setCopied] = useState(false);
+  const [countryDial, setCountryDial] = useState("62");
   const sanitizedDigits = useMemo(() => sanitizePhoneNumber(phoneInput), [phoneInput]);
 
   const isValid = useMemo(() => {
@@ -25,16 +27,23 @@ const Home: FC = () => {
     return true;
   }, [sanitizedDigits]);
 
-  const waUrl = useMemo(() => buildWaUrl(sanitizedDigits), [sanitizedDigits]);
+  const fullNumber = useMemo(() => `${countryDial}${sanitizedDigits}`, [countryDial, sanitizedDigits]);
+  const waUrl = useMemo(() => buildWaUrl(fullNumber), [fullNumber]);
 
   useEffect(() => {
     const lastPhone = localStorage.getItem(LOCAL_STORAGE_KEY_PHONE) || "";
+    const lastCountry = localStorage.getItem("wa-helper:last-country") || "62";
     if (lastPhone) setPhoneInput(lastPhone);
+    setCountryDial(lastCountry);
   }, []);
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_PHONE, phoneInput);
   }, [phoneInput]);
+
+  useEffect(() => {
+    localStorage.setItem("wa-helper:last-country", countryDial);
+  }, [countryDial]);
 
   
 
@@ -90,7 +99,7 @@ const Home: FC = () => {
         </div>
 
         {/* Main Form Card */}
-        <div className="max-w-md mx-auto">
+        <div className="max-w-xl mx-auto">
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
             <div className="bg-gradient-to-r from-green-500 to-green-600 px-5 py-3">
               <h2 className="text-xl font-semibold text-white flex items-center">
@@ -102,10 +111,32 @@ const Home: FC = () => {
             </div>
             
             <div className="p-4 space-y-4">
+              {/* Country Code Select */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Country</label>
+                <div className="relative">
+                  <select
+                    className="block w-full appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg py-2 pl-3 pr-8 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    value={countryDial}
+                    onChange={(e) => setCountryDial(e.target.value)}
+                  >
+                    {POPULAR_COUNTRIES.map((c) => (
+                      <option key={c.code} value={c.dialCode}>
+                        {c.flag} {c.name} (+{c.dialCode})
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 dark:text-gray-500">
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 3a1 1 0 01.832.445l5 7a1 1 0 01-1.664 1.11L10 5.882 5.832 11.555A1 1 0 014.168 10.445l5-7A1 1 0 0110 3z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
               {/* Phone Number Input */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Phone Number (with country code)
+                  Phone Number (without country code)
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -115,7 +146,7 @@ const Home: FC = () => {
                   </div>
                   <input
                     type="tel"
-                    placeholder="e.g. +6281234567890 or 6281234567890"
+                    placeholder="e.g. 81234567890"
                     className="block w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                     value={phoneInput}
                     onChange={(e) => setPhoneInput(e.target.value)}
@@ -124,9 +155,7 @@ const Home: FC = () => {
                     autoComplete="tel"
                   />
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Enter the full number including country code
-                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Number only, no leading 0</p>
               </div>
 
               {/* Generated Link Display */}
@@ -135,26 +164,32 @@ const Home: FC = () => {
                   Generated Link
                 </label>
                 <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                  {waUrl ? (
-                    <div className="flex items-center space-x-2">
-                      <svg className="w-5 h-5 text-green-500 dark:text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414l3 3a2 2 0 012.828 0 2 2 0 001.414-1.414l1-1a1 1 0 00-1.414-1.414l-1 1a2 2 0 01-2.828 0l-3-3a2 2 0 010-2.828l3-3a2 2 0 012.828 0l1 1z" clipRule="evenodd" />
-                      </svg>
-                      <a 
-                        href={waUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-mono text-xs break-all"
-                      >
-                        {waUrl}
-                      </a>
-                    </div>
-                  ) : (
+                  {sanitizedDigits.length === 0 ? (
                     <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                       </svg>
                       <span className="text-sm">Enter a valid phone number to generate link</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <svg className={`w-5 h-5 flex-shrink-0 ${isValid ? "text-green-500 dark:text-green-400" : "text-gray-400"}`} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414l3 3a2 2 0 012.828 0 2 2 0 001.414-1.414l1-1a1 1 0 00-1.414-1.414l-1 1a2 2 0 01-2.828 0l-3-3a2 2 0 010-2.828l3-3a2 2 0 012.828 0l1 1z" clipRule="evenodd" />
+                      </svg>
+                      {isValid ? (
+                        <a
+                          href={waUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-mono text-xs break-all"
+                        >
+                          {waUrl}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400 font-mono text-xs break-all cursor-not-allowed" title="Enter 8–15 digits">
+                          {`https://wa.me/${fullNumber}`}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -163,7 +198,7 @@ const Home: FC = () => {
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-2">
                 <button 
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   onClick={handleOpen} 
                   disabled={!isValid}
                 >
@@ -174,7 +209,7 @@ const Home: FC = () => {
                 </button>
                 
                 <button 
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   onClick={handleCopy} 
                   disabled={!isValid}
                 >
@@ -197,7 +232,7 @@ const Home: FC = () => {
                 </button>
                 
                 <button 
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   onClick={handleShare} 
                   disabled={!isValid}
                 >
