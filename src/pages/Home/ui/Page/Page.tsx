@@ -19,6 +19,10 @@ const Home: FC = () => {
   const [copied, setCopied] = useState(false);
   const [countryDial, setCountryDial] = useState("62");
   const sanitizedDigits = useMemo(() => sanitizePhoneNumber(phoneInput), [phoneInput]);
+  const sortedCountries = useMemo(
+    () => [...POPULAR_COUNTRIES].sort((a, b) => a.name.localeCompare(b.name)),
+    []
+  );
 
   const isValid = useMemo(() => {
     if (!sanitizedDigits) return false;
@@ -120,7 +124,7 @@ const Home: FC = () => {
                     value={countryDial}
                     onChange={(e) => setCountryDial(e.target.value)}
                   >
-                    {POPULAR_COUNTRIES.map((c) => (
+                    {sortedCountries.map((c) => (
                       <option key={c.code} value={c.dialCode}>
                         {c.flag} {c.name} (+{c.dialCode})
                       </option>
