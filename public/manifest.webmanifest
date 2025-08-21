@@ -1,0 +1,12 @@
+{
+  "name": "WhatsApp Helper",
+  "short_name": "WA Helper",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#25D366",
+  "description": "Start a WhatsApp chat with any number without saving the contact first.",
+  "icons": []
+}
+
+

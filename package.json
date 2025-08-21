@@ -1,8 +1,9 @@
 {
-  "name": "typescript-react-tailwind-vite",
+  "name": "whatsapp-helper",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "A lightweight web app that lets you start a WhatsApp chat with any number without saving the contact first",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
