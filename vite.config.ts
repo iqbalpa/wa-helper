@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["vite.svg"],
+      includeAssets: ["logo.png"],
       manifest: {
         name: "WhatsApp Helper",
         short_name: "WA Helper",
@@ -19,9 +19,9 @@ export default defineConfig({
         start_url: "/",
         icons: [
           {
-            src: "/vite.svg",
+            src: "/logo.png",
             sizes: "192x192",
-            type: "image/svg+xml"
+            type: "image/png"
           }
         ]
       }

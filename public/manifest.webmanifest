@@ -8,9 +8,9 @@
   "description": "Start a WhatsApp chat with any number without saving the contact first.",
   "icons": [
     {
-      "src": "/vite.svg",
+      "src": "/logo.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png"
     }
   ]
 }
